@@ -38,7 +38,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'jnlp',
-            image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
+            image: 'image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-nodejs',
             resourceRequestCpu: '1000m',
             resourceLimitCpu: '2000m',
             resourceRequestMemory: '2Gi',
@@ -64,8 +64,8 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '../'
-            SONAR_SOURCES = './'
+            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline'
+            SONAR_SOURCES = '.'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_ADMINPW/{print $2}\'',
@@ -89,6 +89,7 @@ podTemplate(
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+                        -Dsonar.login=${SONARQUBE_PWD} \
                         -Dsonar.sources=${SONAR_SOURCES}"
                 )
             }
