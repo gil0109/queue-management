@@ -38,7 +38,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'jnlp',
-            image: 'image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-nodejs',
+            image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
             resourceRequestCpu: '1000m',
             resourceLimitCpu: '2000m',
             resourceRequestMemory: '2Gi',
