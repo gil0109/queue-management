@@ -96,6 +96,3 @@ podTemplate(
         }
     }
 }
-
-
-SONARQUBE_KEY
