@@ -89,6 +89,7 @@ podTemplate(
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+                        -Dsonar.login=${SONARQUBE_PWD} \
                         -Dsonar.sources=${SONAR_SOURCES}"
                 )
             }
