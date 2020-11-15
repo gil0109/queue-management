@@ -55,17 +55,43 @@ podTemplate(
             echo "checking out source"
             checkout scm
         }
-        stage('Sonarqube') {
-            environment {
-                scannerHome = tool 'SonarQubeScanner'
-            }
-            steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonar-scanner"
-                }
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
+        stage('SonarQube Analysis') {
+            echo ">>> Performing static analysis <<<"
+            SONAR_ROUTE_NAME = 'sonarqube'
+            SONAR_ROUTE_NAMESPACE = sh (
+                script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^namespace/{print $2}\'',
+                returnStdout: true
+            ).trim()
+            SONAR_PROJECT_NAME = 'Queue Management'
+            SONAR_PROJECT_KEY = 'queue-management'
+            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline'
+            SONAR_SOURCES = '.'
+
+            SONARQUBE_PWD = sh (
+                script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_ADMINPW/{print $2}\'',
+                returnStdout: true
+            ).trim()
+
+            SONARQUBE_URL = sh (
+                script: 'oc get routes -o wide --no-headers | awk \'/sonarqube/{ print match($0,/edge/) ?  "https://"$2 : "http://"$2 }\'',
+                returnStdout: true
+            ).trim()
+
+            echo "PWD: ${SONARQUBE_PWD}"
+            echo "URL: ${SONARQUBE_URL}"
+
+            dir('sonar-runner') {
+                sh (
+                    returnStdout: true,
+                    script: "/home/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonarqubescanner/bin/sonar-scanner \
+                        -Dsonar.verbose=true \
+                        -Dsonar.host.url=${SONARQUBE_URL} \
+                        -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
+                        -Dsonar.login=${SONARQUBE_PWD} \
+                        -Dsonar.sources=${SONAR_SOURCES}"
+                )
             }
         }
     }
