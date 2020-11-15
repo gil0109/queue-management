@@ -65,7 +65,7 @@ podTemplate(
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
             SONAR_PROJECT_BASE_DIR = '/tmp/workspace/servicebc-cfms-tools/servicebc-cfms-tools-queue-management-pipeline'
-            SONAR_SOURCES = './api'
+            SONAR_SOURCES = './api,./frontend/src,./appointment-frontend/src,./jobs/appointment_reminder'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
