@@ -83,7 +83,7 @@ podTemplate(
             dir('sonar-runner') {
                 sh (
                     returnStdout: true,
-                    script: "/home/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonarqubescanner/bin/sonar-scanner \
+                    script: "./gradlew sonarqube --stacktrace --info \
                         -Dsonar.verbose=true \
                         -Dsonar.host.url=${SONARQUBE_URL} \
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
