@@ -47,7 +47,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'jnlp',
-            image: '172.50.0.2:5000/openshift/jenkins-slave-python3nodejs',
+            image: 'registry.redhat.io/openshift3/jenkins-slave-base-rhel7',
             resourceRequestCpu: '1000m',
             resourceLimitCpu: '2000m',
             resourceRequestMemory: '2Gi',
@@ -253,11 +253,6 @@ podTemplate(
                 sh (
                     returnStdout: true,
                     script: "npm init -y"
-                )
-
-                sh (
-                    returnStdout: true,
-                    script: "npm install -g n"
                 )
 
                 sh (
