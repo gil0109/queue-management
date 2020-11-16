@@ -60,11 +60,11 @@ podTemplate(
 ){
     node(label) {
 
-/*         stage('Checkout Source') {
+         stage('Checkout Source') {
             echo "checking out source"
             checkout scm
         }
-        stage('SonarQube Analysis') {
+/*        stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
             SONAR_ROUTE_NAME = 'sonarqube'
             SONAR_ROUTE_NAMESPACE = sh (
