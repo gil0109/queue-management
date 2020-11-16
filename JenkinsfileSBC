@@ -109,9 +109,9 @@ podTemplate(
                     openshift.withCluster() {
                         openshift.withProject() {
                             echo "Building Front End NPM"
-                            openshift.selector("bc", "${BUILDS[1]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[1]}").startBuild()
                             echo "Building Front End Final"
-                            openshift.selector("bc", "${BUILDS[2]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[2]}").startBuild()
                         }
                         echo "Staff Front End Completed ..."
                     }
@@ -123,9 +123,9 @@ podTemplate(
                     openshift.withCluster() {
                         openshift.withProject() {
                             echo "Bulding Appoitment Front End NPM"
-                            openshift.selector("bc", "${BUILDS[3]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[3]}").startBuild()
                             echo "Bulding Appoitment Front End Final"
-                            openshift.selector("bc", "${BUILDS[4]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[4]}").startBuild()
                         }
                         echo "Appointment Online complete ..."
                     }
@@ -136,7 +136,7 @@ podTemplate(
                 script: {
                     openshift.withCluster() {
                         openshift.withProject() {
-                            openshift.selector("bc", "${BUILDS[0]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[0]}").startBuild()
                         }
                         echo "API Build complete ..."
                     }
@@ -147,7 +147,7 @@ podTemplate(
                 script: {
                     openshift.withCluster() {
                         openshift.withProject() {
-                            openshift.selector("bc", "${BUILDS[5]}").startBuild("--wait")
+                            openshift.selector("bc", "${BUILDS[5]}").startBuild()
                         }
                         echo "Cron Mail Build complete ..."
                     }
