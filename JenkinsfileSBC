@@ -257,12 +257,12 @@ podTemplate(
 
                 sh (
                     returnStdout: true,
-                    script: "npm install newman"
+                    script: "npm install -g n"
                 )
 
                 sh (
                     returnStdout: true,
-                    script: "npm install -g n"
+                    script: "npm install newman"
                 )
 
                 USERID = sh (
