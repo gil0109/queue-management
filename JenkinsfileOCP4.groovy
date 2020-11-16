@@ -64,7 +64,7 @@ podTemplate(
             echo "checking out source"
             checkout scm
         }
-       stage('SonarQube Analysis') {
+/*        stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
             SONAR_ROUTE_NAME = 'sonarqube'
             SONAR_ROUTE_NAMESPACE = sh (
@@ -266,7 +266,7 @@ podTemplate(
                     }
                 }
             }
-        }
+        } */
         stage('Newman Tests') {
             dir('api/postman') {
                 sh "ls -alh"
