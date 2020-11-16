@@ -60,7 +60,7 @@ podTemplate(
 ){
     node(label) {
 
-        stage('Checkout Source') {
+/*         stage('Checkout Source') {
             echo "checking out source"
             checkout scm
         }
@@ -103,7 +103,7 @@ podTemplate(
                 )
             }
         }
-/*         parallel Build_Staff_FE_NPM: {
+        parallel Build_Staff_FE_NPM: {
             stage("Build Front End NPM..") {
                 script: {
                     openshift.withCluster() {
@@ -245,8 +245,8 @@ podTemplate(
                     }
                 }
             }
-        } */
-        stage('Newman Tests') {
+        }
+ */        stage('Newman Tests') {
             dir('api/postman') {
                 sh "ls -alh"
 
