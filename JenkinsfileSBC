@@ -41,7 +41,7 @@ String getImageTagHash(String imageName, String tag = "") {
 
 podTemplate(
     label: label, 
-    name: 'jenkins-python3nodejs', 
+    name: 'jenkins-agent-nodejs', 
     serviceAccount: 'jenkins', 
     cloud: 'openshift', 
     containers: [
@@ -64,7 +64,7 @@ podTemplate(
             echo "checking out source"
             checkout scm
         }
-/*        stage('SonarQube Analysis') {
+       stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
             SONAR_ROUTE_NAME = 'sonarqube'
             SONAR_ROUTE_NAMESPACE = sh (
@@ -74,7 +74,7 @@ podTemplate(
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
             SONAR_PROJECT_BASE_DIR = '/tmp/workspace/servicebc-cfms-tools/servicebc-cfms-tools-queue-management-pipeline'
-            SONAR_SOURCES = './api,./frontend/src,./appointment-frontend/src,./jobs/appointment_reminder'
+            SONAR_SOURCES = './'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
@@ -110,10 +110,8 @@ podTemplate(
                         openshift.withProject() {
                             echo "Building Front End NPM"
                             openshift.selector("bc", "${BUILDS[1]}").startBuild("--wait")
-                            echo "Building Front End Final"
-                            openshift.selector("bc", "${BUILDS[2]}").startBuild("--wait")
                         }
-                        echo "Staff Front End Completed ..."
+                        echo "Staff Front End NPM Completed ..."
                     }
                 }
             }
@@ -124,10 +122,8 @@ podTemplate(
                         openshift.withProject() {
                             echo "Bulding Appoitment Front End NPM"
                             openshift.selector("bc", "${BUILDS[3]}").startBuild("--wait")
-                            echo "Bulding Appoitment Front End Final"
-                            openshift.selector("bc", "${BUILDS[4]}").startBuild("--wait")
                         }
-                        echo "Appointment Online complete ..."
+                        echo "Appointment NPM ..."
                     }
                 }
             }
@@ -150,6 +146,31 @@ podTemplate(
                             openshift.selector("bc", "${BUILDS[5]}").startBuild("--wait")
                         }
                         echo "Cron Mail Build complete ..."
+                    }
+                }
+            }
+        }
+        parallel Build_Staff_FE: {
+            stage("Build Staff Front End ..") {
+                script: {
+                    openshift.withCluster() {
+                        openshift.withProject() {
+                            echo "Building Front End Final"
+                            openshift.selector("bc", "${BUILDS[2]}").startBuild("--wait")
+                        }
+                        echo "Staff Front End Completed ..."
+                    }
+                }
+            }
+        }, Build_Appointment_FE: {
+            stage("Build Appointment Front End") {
+                script: {
+                    openshift.withCluster() {
+                        openshift.withProject() {
+                            echo "Bulding Appoitment Front End Final"
+                            openshift.selector("bc", "${BUILDS[4]}").startBuild("--wait")
+                        }
+                        echo "Appointment Online complete ..."
                     }
                 }
             }
@@ -246,7 +267,7 @@ podTemplate(
                 }
             }
         }
- */        stage('Newman Tests') {
+        stage('Newman Tests') {
             dir('api/postman') {
                 sh "ls -alh"
 
@@ -349,31 +370,62 @@ podTemplate(
     )]
 ) {
     node(owaspPodLabel) {
-        stage('ZAP Security Scan') {
-            sleep 60
-            ZAP_WITH_URL = sh (
-                script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^zap_with_url/{print $2}\'',
-                returnStdout: true
-            ).trim()            
-            def retVal = sh (
-                returnStatus: true, 
-                script: "${ZAP_WITH_URL}"
-            )
-            publishHTML([
-                allowMissing: false, 
-                alwaysLinkToLastBuild: false, 
-                keepAll: true, 
-                reportDir: '/zap/wrk', 
-                reportFiles: 'baseline.html', 
-                reportName: 'ZAP Baseline Scan', 
-                reportTitles: 'ZAP Baseline Scan'
-            ])
-            echo "Return value is: ${retVal}"
+        parallel Zap_Fronend: {
+            stage('ZAP Security Scan') {
+                sleep 60
+                ZAP_WITH_URL = sh (
+                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^zap_with_url_staff/{print $2}\'',
+                    returnStdout: true
+                ).trim()            
+                def retVal = sh (
+                    returnStatus: true, 
+                    script: "${ZAP_WITH_URL}"
+                )
+                publishHTML([
+                    allowMissing: false, 
+                    alwaysLinkToLastBuild: false, 
+                    keepAll: true, 
+                    reportDir: '/zap/wrk', 
+                    reportFiles: 'baseline.html', 
+                    reportName: 'ZAPStaffScan', 
+                    reportTitles: 'ZAP Baseline Scan'
+                ])
+                echo "Return value is: ${retVal}"
 
-            script {
-                if (retVal != 0) {
-                    echo "MARKING BUILD AS UNSTABLE"
-                    currentBuild.result = 'UNSTABLE'
+                script {
+                    if (retVal != 0) {
+                        echo "MARKING BUILD AS UNSTABLE"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        }, Zap_Appointment: {
+            stage('ZAP Security Scan') {
+                sleep 60
+                ZAP_WITH_URL = sh (
+                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^zap_with_url/{print $2}\'',
+                    returnStdout: true
+                ).trim()            
+                def retVal = sh (
+                    returnStatus: true, 
+                    script: "${ZAP_WITH_URL}"
+                )
+                publishHTML([
+                    allowMissing: false, 
+                    alwaysLinkToLastBuild: false, 
+                    keepAll: true, 
+                    reportDir: '/zap/wrk', 
+                    reportFiles: 'baseline.html', 
+                    reportName: 'ZAPBaselineScan', 
+                    reportTitles: 'ZAP Baseline Scan'
+                ])
+                echo "Return value is: ${retVal}"
+
+                script {
+                    if (retVal != 0) {
+                        echo "MARKING BUILD AS UNSTABLE"
+                        currentBuild.result = 'UNSTABLE'
+                    }
                 }
             }
         }
