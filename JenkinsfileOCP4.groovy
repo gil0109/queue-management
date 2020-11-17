@@ -351,17 +351,29 @@ podTemplate(
         }
     } */
 }
-
-node('jenkins-agent-zap') {
-    stage('Scan Web Application') {
-        dir('/zap') {
-            def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t https://www.google.com'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/zap/wrk', reportFiles: 'baseline.html', reportName: 'ZAP Baseline Scan', reportTitles: 'ZAP Baseline Scan'])
-            echo "Return value is: ${retVal}"
-        }
-    }
-} 
-
+}
+podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccount: 'jenkins', cloud: 'openshift', containers: [
+  containerTemplate(
+    name: 'jenkins-agent-zap',
+    image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
+    resourceRequestCpu: '500m',
+    resourceLimitCpu: '1000m',
+    resourceRequestMemory: '3Gi',
+    resourceLimitMemory: '4Gi',
+    workingDir: '/tmp',
+    command: '',
+    args: '${computer.jnlpmac} ${computer.name}'
+  )
+]) {
+     node('jenkins-agent-zap) {
+       stage('Scan Web Application') {
+         dir('/zap') {
+                def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://platform-dev.pathfinder.gov.bc.ca/'
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/zap/wrk', reportFiles: 'baseline.html', reportName: 'ZAP Baseline Scan', reportTitles: 'ZAP Baseline Scan'])
+                echo "Return value is: ${retVal}"
+         }
+       }
+     }
 node {
     stage("Deploy to test") {
         input "Deploy to test?"
@@ -565,5 +577,4 @@ node {
             }
         }
     }
-}
 }
