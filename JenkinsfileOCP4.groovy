@@ -266,8 +266,8 @@ podTemplate(
                     }
                 }
             }
-        } */
-/*         stage('Newman Tests') {
+        }
+        stage('Newman Tests') {
             dir('api/postman') {
                 sh "ls -alh"
 
@@ -359,7 +359,7 @@ podTemplate(
     cloud: 'openshift', 
     containers: [ containerTemplate(
         name: 'jnlp',
-        image: 'image-registry.apps.silver.devops.gov.bc.ca/5c0dde-tools/jenkins-agent-zap',
+        image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
         resourceRequestCpu: '500m',
         resourceLimitCpu: '1000m',
         resourceRequestMemory: '3Gi',
