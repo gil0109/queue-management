@@ -73,7 +73,7 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline'
+            SONAR_PROJECT_BASE_DIR = './'
             SONAR_SOURCES = './'
 
             SONARQUBE_PWD = sh (
