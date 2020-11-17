@@ -64,45 +64,6 @@ podTemplate(
             echo "checking out source"
             checkout scm
         }
-       stage('SonarQube Analysis') {
-            echo ">>> Performing static analysis <<<"
-            SONAR_ROUTE_NAME = 'sonarqube'
-            SONAR_ROUTE_NAMESPACE = sh (
-                script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^namespace/{print $2}\'',
-                returnStdout: true
-            ).trim()
-            SONAR_PROJECT_NAME = 'Queue Management'
-            SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline'
-            SONAR_SOURCES = './'
-
-            SONARQUBE_PWD = sh (
-                script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
-                returnStdout: true
-            ).trim()
-
-            SONARQUBE_URL = sh (
-                script: 'oc get routes -o wide --no-headers | awk \'/sonarqube/{ print match($0,/edge/) ?  "https://"$2 : "http://"$2 }\'',
-                returnStdout: true
-            ).trim()
-
-            echo "PWD: ${SONARQUBE_PWD}"
-            echo "URL: ${SONARQUBE_URL}"
-
-            dir('sonar-runner') {
-                sh (
-                    returnStdout: true,
-                    script: "./gradlew sonarqube --stacktrace --info \
-                        -Dsonar.verbose=true \
-                        -Dsonar.host.url=${SONARQUBE_URL} \
-                        -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.projectBaseDir=${SONAR_PROJECT_BASE_DIR} \
-                        -Dsonar.login=${SONARQUBE_PWD} \
-                        -Dsonar.sources=${SONAR_SOURCES}"
-                )
-            }
-        }
         parallel Build_Staff_FE_NPM: {
             stage("Build Front End NPM..") {
                 script: {
@@ -181,7 +142,6 @@ podTemplate(
                     openshift.withCluster() {
                         openshift.withProject() {
                             echo "Tagging ${BUILDS[0]} for deployment to ${TAG_NAMES[0]} ..."
-
                             // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
                             // Tag the images for deployment based on the image's hash
                             API_IMAGE_HASH = getImageTagHash("${BUILDS[0]}")
@@ -265,88 +225,6 @@ podTemplate(
                         echo "Appointment Online Complete."
                     }
                 }
-            }
-        }
-        stage('Newman Tests') {
-            dir('api/postman') {
-                sh "ls -alh"
-
-                sh (
-                    returnStdout: true,
-                    script: "npm init -y"
-                )
-
-                sh (
-                    returnStdout: true,
-                    script: "npm install newman"
-                )
-
-                USERID = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^userid_qtxn/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                PASSWORD = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^password_qtxn/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                USERID_NONQTXN = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^userid_nonqtxn/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                PASSWORD_NONQTXN = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^password_nonqtxn/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                CLIENT_SECRET = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^client_secret/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                REALM = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^realm/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                API_URL = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^url/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                AUTH_URL = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/auth_url/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                CLIENTID = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^clientid/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                PUBLIC_USERID = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^public_user_id/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                PASSWORD_PUBLIC_USER = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^public_user_password/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                PUBLIC_API_URL = sh (
-                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^public_url/{print $2}\'',
-                    returnStdout: true
-                ).trim()
-
-                NODE_OPTIONS='--max_old_space_size=2048'
-
-                sh (
-                    returnStdout: true,
-                    script: "./node_modules/newman/bin/newman.js run API_Test_TheQ_Booking.json --delay-request 250 -e postman_env.json --global-var 'userid=${USERID}' --global-var 'password=${PASSWORD}' --global-var 'userid_nonqtxn=${USERID_NONQTXN}' --global-var 'password_nonqtxn=${PASSWORD_NONQTXN}' --global-var 'client_secret=${CLIENT_SECRET}' --global-var 'url=${API_URL}' --global-var 'auth_url=${AUTH_URL}' --global-var 'clientid=${CLIENTID}' --global-var 'realm=${REALM}' --global-var public_url=${PUBLIC_API_URL} --global-var public_user_id=${PUBLIC_USERID} --global-var public_user_password=${PASSWORD_PUBLIC_USER}"
-                )
             }
         }
     }

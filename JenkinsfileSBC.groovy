@@ -10,8 +10,8 @@
 // clientid=<keycload Client ID>
 // realm=<keycloak realm>
 
-def WAIT_TIMEOUT = 20
-def TAG_NAMES = ['dev', 'test', 'prod']
+def WAIT_TIMEOUT = 10
+def TAG_NAMES = ['dev', 'test', 'production']
 def BUILDS = ['queue-management-api', 'queue-management-npm-build', 'queue-management-frontend', 'appointment-npm-build', 'appointment-frontend','send-appointment-reminder-crond']
 def DEP_ENV_NAMES = ['dev', 'test', 'prod']
 def label = "mypod-${UUID.randomUUID().toString()}"
@@ -48,9 +48,9 @@ podTemplate(
         containerTemplate(
             name: 'jnlp',
             image: 'registry.redhat.io/openshift3/jenkins-agent-nodejs-12-rhel7',
-            resourceRequestCpu: '500m',
-            resourceLimitCpu: '1000m',
-            resourceRequestMemory: '3Gi',
+            resourceRequestCpu: '1000m',
+            resourceLimitCpu: '2000m',
+            resourceRequestMemory: '2Gi',
             resourceLimitMemory: '4Gi',
             workingDir: '/tmp',
             command: '',
@@ -73,7 +73,7 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline'
+            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/servicebc-cfms-tools/servicebc-cfms-tools-queue-management-pipeline'
             SONAR_SOURCES = './'
 
             SONARQUBE_PWD = sh (
@@ -351,6 +351,58 @@ podTemplate(
         }
     }
 }
+def owaspPodLabel = "owasp-zap-${UUID.randomUUID().toString()}"
+podTemplate(
+    label: owaspPodLabel, 
+    name: owaspPodLabel, 
+    serviceAccount: 'jenkins', 
+    cloud: 'openshift', 
+    containers: [ containerTemplate(
+        name: 'jnlp',
+        image: '172.50.0.2:5000/openshift/jenkins-slave-zap',
+        resourceRequestCpu: '500m',
+        resourceLimitCpu: '1000m',
+        resourceRequestMemory: '3Gi',
+        resourceLimitMemory: '4Gi',
+        workingDir: '/home/jenkins',
+        command: '',
+        args: '${computer.jnlpmac} ${computer.name}'
+    )]
+) {
+    node(owaspPodLabel) {
+         Zap_Fronend: {
+            stage('ZAP Security Scan') {
+                sleep 60
+                ZAP_WITH_URL = sh (
+                    script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^zap_with_url_staff/{print $2}\'',
+                    returnStdout: true
+                ).trim()            
+                def retVal = sh (
+                    returnStatus: true, 
+                    script: "${ZAP_WITH_URL}"
+                )
+                publishHTML([
+                    allowMissing: false, 
+                    alwaysLinkToLastBuild: false, 
+                    keepAll: true, 
+                    reportDir: '/zap/wrk', 
+                    reportFiles: 'baseline.html', 
+                    reportName: 'ZAPStaffScan', 
+                    reportTitles: 'ZAP Baseline Scan'
+                ])
+                echo "Return value is: ${retVal}"
+
+                script {
+                    if (retVal != 0) {
+                        echo "MARKING BUILD AS UNSTABLE"
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        }
+    }
+} 
+
 node {
     stage("Deploy to test") {
         input "Deploy to test?"
