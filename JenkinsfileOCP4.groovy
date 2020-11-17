@@ -352,7 +352,7 @@ podTemplate(
     } */
 }
 }
-podTemplate(label: 'owasp-zap', name: 'owasp-zap', serviceAccount: 'jenkins', cloud: 'openshift', containers: [
+podTemplate(label: 'zap', name: 'zap', serviceAccount: 'jenkins', cloud: 'openshift', containers: [
   containerTemplate(
     name: 'jnlp',
     image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
@@ -365,7 +365,7 @@ podTemplate(label: 'owasp-zap', name: 'owasp-zap', serviceAccount: 'jenkins', cl
     args: '${computer.jnlpmac} ${computer.name}'
   )
 ]) {
-     node('owasp-zap') {
+     node('zap') {
        stage('Scan Web Application') {
          dir('/zap') {
                 def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://platform-dev.pathfinder.gov.bc.ca/'
