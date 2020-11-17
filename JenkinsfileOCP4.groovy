@@ -352,7 +352,7 @@ podTemplate(
     } */
 }
 }
-podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccount: 'jenkins', cloud: 'openshift', containers: [
+podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccount: 'jenkins', cloud: 'jenkins-agent-zap', containers: [
   containerTemplate(
     name: 'jenkins-agent-zap',
     image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
