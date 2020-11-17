@@ -366,36 +366,14 @@ podTemplate(label: 'zap', name: 'zap', serviceAccount: 'jenkins', cloud: 'opensh
   )
 ]) {
      node('zap') {
-            stage('ZAP Security Scan') {
-                sleep 60
-                ZAP_WITH_URL = sh (
-                    script: '/zap/zap-baseline.py -r index.html -t http://dev-qmsappointment.apps.silver.devops.gov.bc.ca/',
-                    returnStdout: true
-                ).trim()            
-                def retVal = sh (
-                    returnStatus: true, 
-                    script: "${ZAP_WITH_URL}"
-                )
-                publishHTML([
-                    allowMissing: false, 
-                    alwaysLinkToLastBuild: false, 
-                    keepAll: true, 
-                    reportDir: '/zap/wrk', 
-                    reportFiles: 'baseline.html', 
-                    reportName: 'ZAPStaffScan', 
-                    reportTitles: 'ZAP Baseline Scan'
-                ])
+       stage('Scan Web Application') {
+         dir('/zap') {
+                def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://platform-dev.pathfinder.gov.bc.ca/'
                 echo "Return value is: ${retVal}"
-
-                script {
-                    if (retVal != 0) {
-                        echo "MARKING BUILD AS UNSTABLE"
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
-            }
-        }
+         }
+       }
      }
+}
 node {
     stage("Deploy to test") {
         input "Deploy to test?"
