@@ -267,7 +267,7 @@ podTemplate(
                 }
             }
         } */
-        stage('Newman Tests') {
+/*         stage('Newman Tests') {
             dir('api/postman') {
                 sh "ls -alh"
 
@@ -349,7 +349,7 @@ podTemplate(
                 )
             }
         }
-    }
+    } */
 }
 def owaspPodLabel = "owasp-zap-${UUID.randomUUID().toString()}"
 podTemplate(
