@@ -351,6 +351,7 @@ podTemplate(
         }
     } */
 }
+}
 def owaspPodLabel = "owasp-zap-${UUID.randomUUID().toString()}"
 podTemplate(
     label: owaspPodLabel, 
