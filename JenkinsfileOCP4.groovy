@@ -365,7 +365,7 @@ podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccoun
     args: '${computer.jnlpmac} ${computer.name}'
   )
 ]) {
-     node('jenkins-agent-zap) {
+     node('jenkins-agent-zap') {
        stage('Scan Web Application') {
          dir('/zap') {
                 def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t http://platform-dev.pathfinder.gov.bc.ca/'
@@ -374,6 +374,7 @@ podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccoun
          }
        }
      }
+}
 node {
     stage("Deploy to test") {
         input "Deploy to test?"
