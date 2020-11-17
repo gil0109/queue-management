@@ -357,9 +357,9 @@ podTemplate(
     label: owaspPodLabel, 
     name: owaspPodLabel, 
     serviceAccount: 'jenkins', 
-    cloud: 'openshift', 
+    cloud: 'jenkins-agent-zap', 
     containers: [ containerTemplate(
-        name: 'jnlp',
+        name: 'jenkins-agent-zap',
         image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
         resourceRequestCpu: '500m',
         resourceLimitCpu: '1000m',
@@ -370,39 +370,12 @@ podTemplate(
         args: '${computer.jnlpmac} ${computer.name}'
     )]
 ) {
-    node(owaspPodLabel) {
-        Zap_Fronend: {
-            stage('ZAP Security Scan') {
-                sleep 5
-                sh (
-                    script: 'wget -c https://github.com/openshift/origin/releases/download/v3.11.0/openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit.tar.gz -O - | tar -xz openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc && ls -l'
-                )
-
-                ZAP_WITH_URL = sh (
-                    script: 'openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit/oc describe configmap jenkin-config | awk  -F  "=" \'/^zap_with_url_staff/{print $2}\'',
-                    returnStdout: true
-                ).trim()            
-                def retVal = sh (
-                    returnStatus: true, 
-                    script: "${ZAP_WITH_URL}"
-                )
-                publishHTML([
-                    allowMissing: false, 
-                    alwaysLinkToLastBuild: false, 
-                    keepAll: true, 
-                    reportDir: '/zap/wrk', 
-                    reportFiles: 'baseline.html', 
-                    reportName: 'ZAPStaffScan', 
-                    reportTitles: 'ZAP Baseline Scan'
-                ])
+    node('jenkins-agent-zap') {
+        stage('Scan Web Application') {
+            dir('/zap') {
+                def retVal = sh returnStatus: true, script: '/zap/zap-baseline.py -r baseline.html -t https://www.google.com'
+                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: '/zap/wrk', reportFiles: 'baseline.html', reportName: 'ZAP Baseline Scan', reportTitles: 'ZAP Baseline Scan'])
                 echo "Return value is: ${retVal}"
-
-                script {
-                    if (retVal != 0) {
-                        echo "MARKING BUILD AS UNSTABLE"
-                        currentBuild.result = 'UNSTABLE'
-                    }
-                }
             }
         }
     }
