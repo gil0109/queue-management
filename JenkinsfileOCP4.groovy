@@ -359,7 +359,7 @@ podTemplate(
     cloud: 'openshift', 
     containers: [ containerTemplate(
         name: 'jnlp',
-        image: 'https://image-registry.apps.silver.devops.gov.bc.ca/5c0dde-tools/jenkins-agent-zap',
+        image: 'image-registry.apps.silver.devops.gov.bc.ca/5c0dde-tools/jenkins-agent-zap',
         resourceRequestCpu: '500m',
         resourceLimitCpu: '1000m',
         resourceRequestMemory: '3Gi',
