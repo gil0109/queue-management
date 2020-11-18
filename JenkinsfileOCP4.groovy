@@ -62,9 +62,7 @@ podTemplate(
 
          stage('Checkout Source') {
             echo "checking out source"
-            dir('/tmp') { 
-                checkout scm
-            }
+            checkout scm
         }
        stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
