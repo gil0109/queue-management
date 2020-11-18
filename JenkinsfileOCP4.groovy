@@ -74,7 +74,7 @@ podTemplate(
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
             SONAR_PROJECT_BASE_DIR = '/tmp'
-            SONAR_SOURCES = '/tmp/api/,/tmp/frontend/'
+            SONAR_SOURCES = 'api/,frontend/'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
