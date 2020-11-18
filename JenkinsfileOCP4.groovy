@@ -75,7 +75,7 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '/tmp/workspace/5c0dde-tools/5c0dde-tools-queue-management-pipeline/'
+            SONAR_PROJECT_BASE_DIR = '/tmp/'
             SONAR_SOURCES = './'
 
             SONARQUBE_PWD = sh (
@@ -94,7 +94,7 @@ podTemplate(
             dir('sonar-runner') {
                 sh (
                     returnStdout: true,
-                    script: "./gradlew sonarqube --stacktrace --info \
+                    script: "/tmp/owasp/gradlew sonarqube --stacktrace --info \
                         -Dsonar.verbose=true \
                         -Dsonar.host.url=${SONARQUBE_URL} \
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
