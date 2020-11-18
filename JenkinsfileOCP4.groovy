@@ -92,7 +92,7 @@ podTemplate(
             dir('sonar-runner') {
                 sh (
                     returnStdout: true,
-                    script: "/tmp/owasp/gradlew sonarqube --stacktrace --info \
+                    script: "./gradlew sonarqube --stacktrace --info \
                         -Dsonar.verbose=true \
                         -Dsonar.host.url=${SONARQUBE_URL} \
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
