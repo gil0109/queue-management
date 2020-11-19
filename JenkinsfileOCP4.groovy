@@ -77,7 +77,7 @@ podTemplate(
                     script: "pwd"
             )
 
-            echo ${SONAR_PROJECT_BASE_DIR}
+            echo "${SONAR_PROJECT_BASE_DIR}"
             SONAR_SOURCES = 'api'
 
             SONARQUBE_PWD = sh (
