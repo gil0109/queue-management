@@ -78,7 +78,7 @@ podTemplate(
                     returnStdout: true
             ).trim()
             echo "${SONAR_PROJECT_BASE_DIR}"
-            SONAR_SOURCES = 'api'
+            SONAR_SOURCES = 'api,frontend,appointment-frontend,jobs'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
