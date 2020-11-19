@@ -1,14 +1,23 @@
 // This Jenkins build requires a configmap called jenkin-config with the following in it:
 //
-// password_qtxn=<cfms-postman-operator userid password>
-// password_nonqtxn=<cfms-postman-non-operator userid password>
 // client_secret=<keycloak client secret>
+// zap_with_url_staff=<queue frontend for staff URL>
 // zap_with_url=<zap command including dev url for analysis> 
 // namespace=<openshift project namespace>
 // url=<url of api>/api/v1/
-// authurl=<Keycloak domain>
+// auth_url=<Keycloak domain>
 // clientid=<keycload Client ID>
 // realm=<keycloak realm>
+// dev_namespace=<openshift dev namepaces for testing>
+// userid_qtxn=postman tester
+// password_qtxn=<cfms-postman-operator password>
+// userid_nonqtxn=cfms-postman-non-operator userid>
+// password_nonqtxn=<cfms-postman-non-operator password>
+// public_user_id=cfms-postman-public-user
+// public_user_password=<cfms-postman-public-user password>
+// public_url=<public api url>
+// sonarqube_key=<sonarqube key>
+
 
 def WAIT_TIMEOUT = 20
 def TAG_NAMES = ['dev', 'test', 'prod']
@@ -77,11 +86,9 @@ podTemplate(
                     script: "pwd",
                     returnStdout: true
             ).trim()
-            echo "${SONAR_PROJECT_BASE_DIR}"
             SONAR_SOURCES = 'api,frontend,appointment-frontend,jobs'
-
             SONARQUBE_PWD = sh (
-                script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
+                script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^sonarqube_key/{print $2}\'',
                 returnStdout: true
             ).trim()
 
@@ -89,13 +96,6 @@ podTemplate(
                 script: 'oc get routes -o wide --no-headers | awk \'/sonarqube/{ print match($0,/edge/) ?  "https://"$2 : "http://"$2 }\'',
                 returnStdout: true
             ).trim()
-
-            echo "PWD: ${SONARQUBE_PWD}"
-            echo "URL: ${SONARQUBE_URL}"
-
-            sh (
-                script: "ls -la"
-            )
 
             dir('sonar-runner') {
                 sh (
