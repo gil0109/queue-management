@@ -76,7 +76,7 @@ podTemplate(
             SONAR_PROJECT_BASE_DIR = sh (
                     script: "pwd",
                     returnStdout: true
-            )
+            ).trim()
             echo "${SONAR_PROJECT_BASE_DIR}"
             SONAR_SOURCES = 'api'
 
