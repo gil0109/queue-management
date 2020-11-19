@@ -457,8 +457,12 @@ node {
     }
 }
 node {
-    stage("Update Production") {
+    stage("Deploy to prod") {
         input "Deploy to Prod?"
+    }
+}
+node {
+    stage("Update Production") {
         script: {
             openshift.withCluster() {
                 openshift.withProject() {
