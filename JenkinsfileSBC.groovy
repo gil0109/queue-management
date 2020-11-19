@@ -41,17 +41,17 @@ String getImageTagHash(String imageName, String tag = "") {
 
 podTemplate(
     label: label, 
-    name: 'jenkins-python3nodejs', 
+    name: 'jenkins-agent-nodejs', 
     serviceAccount: 'jenkins', 
     cloud: 'openshift', 
     containers: [
         containerTemplate(
             name: 'jnlp',
             image: 'registry.redhat.io/openshift3/jenkins-agent-nodejs-12-rhel7',
-            resourceRequestCpu: '1000m',
+            resourceRequestCpu: '500m',
             resourceLimitCpu: '2000m',
-            resourceRequestMemory: '2Gi',
-            resourceLimitMemory: '4Gi',
+            resourceRequestMemory: '3Gi',
+            resourceLimitMemory: '8Gi',
             workingDir: '/tmp',
             command: '',
             args: '${computer.jnlpmac} ${computer.name}'
@@ -60,12 +60,11 @@ podTemplate(
 ){
     node(label) {
 
-        stage('Checkout Source') {
+         stage('Checkout Source') {
             echo "checking out source"
             checkout scm
         }
-            
-        stage('SonarQube Analysis') {
+       stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
             SONAR_ROUTE_NAME = 'sonarqube'
             SONAR_ROUTE_NAMESPACE = sh (
@@ -74,11 +73,13 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '../'
-            SONAR_SOURCES = './'
-
+            SONAR_PROJECT_BASE_DIR = sh (
+                    script: "pwd",
+                    returnStdout: true
+            ).trim()
+            SONAR_SOURCES = 'api,frontend,appointment-frontend,jobs'
             SONARQUBE_PWD = sh (
-                script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_ADMINPW/{print $2}\'',
+                script: 'oc describe configmap jenkin-config | awk  -F  "=" \'/^sonarqube_key/{print $2}\'',
                 returnStdout: true
             ).trim()
 
@@ -87,14 +88,12 @@ podTemplate(
                 returnStdout: true
             ).trim()
 
-            echo "PWD: ${SONARQUBE_PWD}"
-            echo "URL: ${SONARQUBE_URL}"
-
             dir('sonar-runner') {
                 sh (
                     returnStdout: true,
                     script: "./gradlew sonarqube --stacktrace --info \
                         -Dsonar.verbose=true \
+                        -Dsonar.login=${SONARQUBE_PWD} \
                         -Dsonar.host.url=${SONARQUBE_URL} \
                         -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
@@ -138,17 +137,6 @@ podTemplate(
                     }
                 }
             }
-        }, Build_Cron_Pod: {
-            stage("Build Mail Cron Pod..") {
-                script: {
-                    openshift.withCluster() {
-                        openshift.withProject() {
-                            openshift.selector("bc", "${BUILDS[5]}").startBuild("--wait")
-                        }
-                        echo "Cron Mail Build complete ..."
-                    }
-                }
-            }
         }
         parallel Build_Staff_FE: {
             stage("Build Staff Front End ..") {
@@ -171,6 +159,17 @@ podTemplate(
                             openshift.selector("bc", "${BUILDS[4]}").startBuild("--wait")
                         }
                         echo "Appointment Online complete ..."
+                    }
+                }
+            }
+        }, Build_Cron_Pod: {
+            stage("Build Mail Cron Pod..") {
+                script: {
+                    openshift.withCluster() {
+                        openshift.withProject() {
+                            openshift.selector("bc", "${BUILDS[5]}").startBuild("--wait")
+                        }
+                        echo "Cron Mail Build complete ..."
                     }
                 }
             }
