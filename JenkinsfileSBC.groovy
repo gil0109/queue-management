@@ -48,7 +48,7 @@ podTemplate(
         containerTemplate(
             name: 'jnlp',
             image: 'registry.redhat.io/openshift3/jenkins-agent-nodejs-12-rhel7',
-            resourceRequestCpu: '500m',
+            resourceRequestCpu: '1000m',
             resourceLimitCpu: '2000m',
             resourceRequestMemory: '3Gi',
             resourceLimitMemory: '8Gi',
@@ -59,12 +59,11 @@ podTemplate(
     ]
 ){
     node(label) {
-
-         stage('Checkout Source') {
+        stage('Checkout Source') {
             echo "checking out source"
             checkout scm
         }
-       stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             echo ">>> Performing static analysis <<<"
             SONAR_ROUTE_NAME = 'sonarqube'
             SONAR_ROUTE_NAMESPACE = sh (
