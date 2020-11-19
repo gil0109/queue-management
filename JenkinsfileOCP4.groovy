@@ -52,7 +52,7 @@ podTemplate(
             resourceLimitCpu: '1000m',
             resourceRequestMemory: '3Gi',
             resourceLimitMemory: '4Gi',
-            workingDir: '/tmp/code',
+            workingDir: '/tmp',
             command: '',
             args: '${computer.jnlpmac} ${computer.name}'
         )
@@ -73,8 +73,7 @@ podTemplate(
             ).trim()
             SONAR_PROJECT_NAME = 'Queue Management'
             SONAR_PROJECT_KEY = 'queue-management'
-            SONAR_PROJECT_BASE_DIR = '/tmp'
-            SONAR_SOURCES = './code/api'
+            SONAR_SOURCES = './api'
 
             SONARQUBE_PWD = sh (
                 script: 'oc set env dc/sonarqube --list | awk  -F  "=" \'/SONARQUBE_KEY/{print $2}\'',
