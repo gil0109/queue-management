@@ -6,7 +6,7 @@ podTemplate(
     cloud: 'openshift', 
     containers: [ containerTemplate(
         name: 'jnlp',
-        image: '172.50.0.2:5000/openshift/jenkins-slave-zap',
+        image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-slave-zap',
         resourceRequestCpu: '500m',
         resourceLimitCpu: '1000m',
         resourceRequestMemory: '3Gi',
