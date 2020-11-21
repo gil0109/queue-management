@@ -1,11 +1,11 @@
-def owaspPodLabel = "owasp-zap-${UUID.randomUUID().toString()}"
+def owaspPodLabel = "jenkins-agent-zap"
 podTemplate(
     label: owaspPodLabel, 
     name: owaspPodLabel, 
     serviceAccount: 'jenkins', 
     cloud: 'openshift', 
     containers: [ containerTemplate(
-        name: 'jnlp',
+        name: 'jenkins-agent-zap',
         image: 'image-registry.openshift-image-registry.svc:5000/5c0dde-tools/jenkins-agent-zap:latest',
         resourceRequestCpu: '500m',
         resourceLimitCpu: '1000m',
