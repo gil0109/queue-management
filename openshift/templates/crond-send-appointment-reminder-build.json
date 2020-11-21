@@ -40,7 +40,7 @@
         "strategy": {
           "type": "Docker",
           "dockerStrategy": {
-            "pullScret":{
+            "pullSecret":{
               "name": "artifactory-creds"
             },
             "env": [
