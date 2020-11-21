@@ -277,8 +277,6 @@ podTemplate(
         }
         stage('Newman Tests') {
             dir('api/postman') {
-                sh "ls -alh"
-
                 sh (
                     returnStdout: true,
                     script: "npm init -y"
@@ -350,7 +348,7 @@ podTemplate(
                 ).trim()
 
                 NODE_OPTIONS='--max_old_space_size=2048'
-
+                sleep(time:10,unit:"SECONDS")
                 sh (
                     returnStdout: true,
                     script: "./node_modules/newman/bin/newman.js run API_Test_TheQ_Booking.json --delay-request 250 -e postman_env.json --global-var 'userid=${USERID}' --global-var 'password=${PASSWORD}' --global-var 'userid_nonqtxn=${USERID_NONQTXN}' --global-var 'password_nonqtxn=${PASSWORD_NONQTXN}' --global-var 'client_secret=${CLIENT_SECRET}' --global-var 'url=${API_URL}' --global-var 'auth_url=${AUTH_URL}' --global-var 'clientid=${CLIENTID}' --global-var 'realm=${REALM}' --global-var public_url=${PUBLIC_API_URL} --global-var public_user_id=${PUBLIC_USERID} --global-var public_user_password=${PASSWORD_PUBLIC_USER}"
