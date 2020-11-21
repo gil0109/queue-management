@@ -101,7 +101,7 @@ podTemplate(
                 )
             }
         }
-        Build_Staff_FE_NPM: {
+        parallel Build_Staff_FE_NPM: {
             stage("Build Front End NPM..") {
                 script: {
                     openshift.withCluster() {
@@ -137,7 +137,7 @@ podTemplate(
                 }
             }
         }
-        Build_Staff_FE: {
+        parallel Build_Staff_FE: {
             stage("Build Staff Front End ..") {
                 script: {
                     openshift.withCluster() {
