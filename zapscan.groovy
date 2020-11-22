@@ -6,7 +6,7 @@ podTemplate(label: 'jenkins-agent-zap', name: 'jenkins-agent-zap', serviceAccoun
     resourceLimitCpu: '1000m',
     resourceRequestMemory: '3Gi',
     resourceLimitMemory: '4Gi',
-    workingDir: '/home/jenkins',
+    workingDir: '/zap',
     command: '',
     args: '${computer.jnlpmac} ${computer.name}'
   )
