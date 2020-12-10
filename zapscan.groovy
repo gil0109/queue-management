@@ -28,7 +28,7 @@ podTemplate(
                 keepAll: true, 
                 reportDir: '/zap/wrk', 
                 reportFiles: 'index.html', 
-                reportName: 'OWASP Zed Attack Proxy', 
+                reportName: 'OWASPReport', 
             ])
             echo "Return value is: ${retVal}"
 
