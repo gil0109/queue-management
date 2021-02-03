@@ -35,3 +35,4 @@ SQLAlchemy-Utc==0.11.0
 toastedmarshmallow==0.2.6
 Jinja2==2.11.2
 alembic==1.5.2
+redis
