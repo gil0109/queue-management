@@ -53,6 +53,7 @@ class BaseConfig(object):
     ACTIVE_MQ_PASSWORD = os.getenv('ACTIVE_MQ_PASSWORD', '')
     ACTIVE_MQ_HOST = os.getenv('ACTIVE_MQ_HOST', '')
     ACTIVE_MQ_PORT = os.getenv('ACTIVE_MQ_PORT', '')
+    REDIS_OPTIONS = os.getenv('REDIS_OPTIONS', '')
     ACTIVE_MQ_URL = '{amq_type}://{amq_user}:{amq_password}@{amq_host}:{amq_port}'.format(
         amq_type=ACTIVE_MQ_TYPE,
         amq_user=ACTIVE_MQ_USER,
